@@ -72,7 +72,7 @@ class Database:
             )
             self.conn.commit()
 
-    def get_all(self)
+    def get_all(self):
         self.cursor.execute("SELECT * FROM students ORDER BY id")
         return self.cursor.fetchall()
 
@@ -99,7 +99,7 @@ class MainWindow(QMainWindow):
         central = QWidget()
         self.setCentralWidget(central)
         layout = QVBoxLayout(central)
-        layout.setContensMargins(16, 16, 16, 16)
+        layout.setContentsMargins(16, 16, 16, 16)
         layout.setSpacing(10)
 
         layout.addWidget(QLabel("Список студентов:"))
@@ -108,7 +108,7 @@ class MainWindow(QMainWindow):
         self.table.setColumnCount(4)
         self.table.setHorizontalHeaderLabels(["ID", "Имя", "Возраст", "Город"])
         self.table.setEditTriggers(
-            QTableWidget.EditTriggers.NoEditTriggers
+            QTableWidget.EditTrigger.NoEditTriggers
         )
         self.table.horizontalHeader().setStretchLastSection(True)
         layout.addWidget(self.table)
@@ -117,4 +117,62 @@ class MainWindow(QMainWindow):
         form_layout = QHBoxLayout()
 
         self.input_name = QLineEdit()
-        self.input_name.setPlaceholderText("")
+        self.input_name.setPlaceholderText("Имя")
+
+        self.input_age = QLineEdit()
+        self.input_age.setPlaceholderText("Возраст")
+        self.input_age.setMaximumWidth(70)
+
+        self.input_city = QLineEdit()
+        self.input_city.setPlaceholderText("Город")
+
+        btn_add = QPushButton("Добавить")
+        btn_add.clicked.connect(self.add_student)
+
+        btn_refresh = QPushButton("Обновить")
+        btn_refresh.clicked.connect(self.load_data)
+
+        form_layout.addWidget(self.input_name)
+        form_layout.addWidget(self.input_age)
+        form_layout.addWidget(self.input_city)
+        form_layout.addWidget(btn_add)
+        form_layout.addWidget(btn_refresh)
+        layout.addLayout(form_layout)
+
+    def load_data(self):
+        rows = self.db.get_all()
+        self.table.setRowCount(len(rows))
+        for i, row in enumerate(rows):
+            for j, val in enumerate(row):
+                self.table.setItem(i, j, QTableWidgetItem(str(val)))
+
+    def add_student(self):
+        name = self.input_name.text().strip()
+        age = self.input_age.text().strip()
+        city = self.input_city.text().strip()
+
+        if not name or not age or not city:
+            QMessageBox.warning(self, "Ошибка", "Заполните все поля!")
+            return
+        if not age.isdigit():
+            QMessageBox.warning(self, "Ошибка", "Возраст должен быть числом")
+            return
+
+        self.db.add(name, int(age), city)
+        self.input_name.clear()
+        self.input_age.clear()
+        self.input_city.clear()
+        self.load_data()
+
+    def closeEvent(self, event):
+        self.db.close()
+        event.accept()
+
+def main():
+    app = QApplication(sys.argv)
+    w = MainWindow()
+    w.show()
+    sys.exit(app.exec())
+
+if __name__ == "__main__":
+    main()
