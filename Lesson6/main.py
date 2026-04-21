@@ -9,10 +9,10 @@ from PyQt6.QtGui import QColor
 from database import GameDatabase
 
 STATUS_COLORS = {
-    "Играю": "#d4edda",
-    "Пройдено": "#cce5ff",
-    "Хочу играть": "#fff3cd",
-    "Брошено": "#f8d7da",
+    "Играю": "#1f3d2b",
+    "Пройдено": "#1e3a5f",
+    "Хочу играть": "#4a3b1f",
+    "Брошено": "#5a1f1f",
 }
 
 
